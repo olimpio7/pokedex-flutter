@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
+import 'database/app_database.dart';
+import 'repositories/favorite_repository.dart';
+
+late final FavoriteRepository favoriteRepository;
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final database = AppDatabase();
+  favoriteRepository = FavoriteRepository(database);
+
   runApp(const MyApp());
 }
 
