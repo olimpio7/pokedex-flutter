@@ -26,7 +26,7 @@ class InfoChip extends StatelessWidget {
           Icon(
             icon,
             color: Colors.white,
-            size: 14, // Ícone menor
+            size: 14, 
           ),
           const SizedBox(width: 4),
           Expanded(
@@ -35,7 +35,7 @@ class InfoChip extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 11, // Fonte muito menor para caber peso e altura
+                fontSize: 11,
                 fontWeight: FontWeight.bold,
               ),
             ),

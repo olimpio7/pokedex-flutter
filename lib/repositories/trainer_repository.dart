@@ -7,7 +7,6 @@ class TrainerRepository {
 
   TrainerRepository(this._db);
 
-  /// Cria um novo treinador.
   Future<int> createTrainer({
     required String name,
     required String city,
@@ -22,17 +21,14 @@ class TrainerRepository {
     return _db.trainerDao.createTrainer(companion);
   }
 
-  /// Busca todos os treinadores cadastrados.
   Future<List<Trainer>> getTrainers() {
     return _db.trainerDao.getTrainers();
   }
 
-  /// Busca um treinador pelo ID.
   Future<Trainer?> getTrainerById(int trainerId) {
     return _db.trainerDao.getTrainerById(trainerId);
   }
 
-  /// Atualiza os dados de um treinador.
   Future<int> updateTrainer({
     required int trainerId,
     required String name,
@@ -48,7 +44,6 @@ class TrainerRepository {
     return _db.trainerDao.updateTrainer(trainerId, companion);
   }
 
-  /// Exclui um treinador pelo ID.
   Future<int> deleteTrainer(int trainerId) {
     return _db.trainerDao.deleteTrainer(trainerId);
   }

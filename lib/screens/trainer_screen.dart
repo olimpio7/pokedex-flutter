@@ -30,6 +30,13 @@ class _TrainerScreenState extends State<TrainerScreen> {
     });
   }
 
+  Future<void> _deleteTrainer() async {
+    if (_trainer != null) {
+      await trainerRepository.deleteTrainer(_trainer!.trainerId);
+      _loadTrainer();
+    }
+  }
+
   void _editTrainer() {
     final nameController = TextEditingController(text: _trainer?.name ?? '');
     final cityController = TextEditingController(text: _trainer?.city ?? '');
@@ -171,7 +178,6 @@ class _TrainerScreenState extends State<TrainerScreen> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              // Avatar no topo do card
                               Container(
                                 width: 130,
                                 height: 130,
@@ -218,15 +224,29 @@ class _TrainerScreenState extends State<TrainerScreen> {
                                 ],
                               ),
                               const SizedBox(height: 40),
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue.shade600,
-                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                ),
-                                onPressed: _editTrainer,
-                                icon: const Icon(Icons.edit, color: Colors.white),
-                                label: const Text('Editar Perfil', style: TextStyle(color: Colors.white, fontSize: 16)),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue.shade600,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                    ),
+                                    onPressed: _editTrainer,
+                                    icon: const Icon(Icons.edit, color: Colors.white),
+                                    label: const Text('Editar', style: TextStyle(color: Colors.white)),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red.shade600,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                    ),
+                                    onPressed: _deleteTrainer,
+                                    icon: const Icon(Icons.delete, color: Colors.white),
+                                    label: const Text('Excluir', style: TextStyle(color: Colors.white)),
+                                  ),
+                                ],
                               ),
                             ],
                           ),

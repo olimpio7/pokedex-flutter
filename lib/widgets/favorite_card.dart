@@ -34,7 +34,7 @@ class FavoriteCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Imagem com fundo redondinho
+
             Container(
               width: 80,
               height: 80,
@@ -53,7 +53,7 @@ class FavoriteCard extends StatelessWidget {
             
             const SizedBox(width: 16),
             
-            // Informações (Nome, Rating, Comment)
+
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,7 +68,7 @@ class FavoriteCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   
-                  // Estrelas
+
                   Row(
                     children: List.generate(
                       5,

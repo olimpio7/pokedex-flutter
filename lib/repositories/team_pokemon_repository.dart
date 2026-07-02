@@ -7,7 +7,6 @@ class TeamPokemonRepository {
 
   TeamPokemonRepository(this._db);
 
-  /// Adiciona um Pokémon ao time.
   Future<int> addPokemonToTeam({
     required int teamId,
     required int pokemonId,
@@ -20,12 +19,10 @@ class TeamPokemonRepository {
     return _db.teamPokemonDao.addPokemonToTeam(companion);
   }
 
-  /// Lista os Pokémons de um time.
   Future<List<TeamPokemon>> getPokemonsByTeam(int teamId) {
     return _db.teamPokemonDao.getPokemonsByTeam(teamId);
   }
 
-  /// Verifica se um Pokémon já pertence ao time.
   Future<bool> isPokemonInTeam({
     required int teamId,
     required int pokemonId,
@@ -33,7 +30,6 @@ class TeamPokemonRepository {
     return _db.teamPokemonDao.isPokemonInTeam(teamId, pokemonId);
   }
 
-  /// Troca um Pokémon do time por outro.
   Future<void> replacePokemonInTeam({
     required int teamId,
     required int oldPokemonId,
@@ -42,7 +38,6 @@ class TeamPokemonRepository {
     return _db.teamPokemonDao.replacePokemonInTeam(teamId, oldPokemonId, newPokemonId);
   }
 
-  /// Remove um Pokémon específico de um time.
   Future<int> removePokemonFromTeam({
     required int teamId,
     required int pokemonId,
@@ -50,7 +45,6 @@ class TeamPokemonRepository {
     return _db.teamPokemonDao.removePokemonFromTeam(teamId, pokemonId);
   }
 
-  /// Remove todos os Pokémons de um time.
   Future<int> clearTeam(int teamId) {
     return _db.teamPokemonDao.clearTeam(teamId);
   }

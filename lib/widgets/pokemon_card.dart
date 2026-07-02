@@ -47,7 +47,7 @@ class PokemonCard extends StatelessWidget {
           padding: const EdgeInsets.all(10),
           child: Column(
             children: [
-              /// Cabeçalho
+
               Row(
                 children: [
                   Expanded(
@@ -75,7 +75,7 @@ class PokemonCard extends StatelessWidget {
 
               const SizedBox(height: 8),
 
-              /// Imagem
+
               Expanded(
                 child: Hero(
                   tag: pokemon.id,
@@ -88,7 +88,7 @@ class PokemonCard extends StatelessWidget {
 
               const SizedBox(height: 8),
 
-              /// Tipo
+
               InfoChip(
                 icon: Icons.catching_pokemon,
                 text: pokemon.type ?? "Unknown",
@@ -96,7 +96,7 @@ class PokemonCard extends StatelessWidget {
 
               const SizedBox(height: 6),
 
-              /// Altura e peso
+
               Row(
                 children: [
                   Expanded(

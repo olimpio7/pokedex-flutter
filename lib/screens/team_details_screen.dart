@@ -33,7 +33,7 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
         final p = await _api.fetchPokemonById(tp.pokemonId);
         loaded.add(p);
       } catch (e) {
-        // Ignora se der erro
+        continue;
       }
     }
 
@@ -80,8 +80,8 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
                     
                     final list = snapshot.data!;
                     return GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3, 
+                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 120, 
                         crossAxisSpacing: 10, 
                         mainAxisSpacing: 10,
                       ),

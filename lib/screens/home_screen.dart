@@ -18,7 +18,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final PokeApiRepository _api = PokeApiRepository();
   late Future<List<Pokemon>> _pokemonsFuture;
-  String _searchQuery = ''; // Guardará o texto da busca
+  String _searchQuery = ''; 
 
   @override
   void initState() {
@@ -33,7 +33,6 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            /// Cabeçalho
             Padding(
               padding: const EdgeInsets.all(20),
               child: Row(
@@ -77,6 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Icons.favorite,
                       color: Colors.white,
                     ),
+                    tooltip: 'Favoritos',
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -90,7 +90,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            /// Busca
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: TextField(
@@ -114,7 +113,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 20),
 
-            /// Lista
             Expanded(
               child: Container(
                 padding: const EdgeInsets.all(16),
@@ -135,10 +133,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       return const Center(child: Text('Nenhum Pokémon encontrado.'));
                     }
 
-                    // Pega a lista toda
                     final allPokemons = snapshot.data!;
                     
-                    // Filtra de acordo com o que foi digitado
                     final pokemons = _searchQuery.isEmpty
                         ? allPokemons
                         : allPokemons.where((p) {
@@ -156,10 +152,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     }
 
                     return GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 10, // Espaçamento reduzido
-                        mainAxisSpacing: 12, // Espaçamento reduzido
+                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 200,
+                        crossAxisSpacing: 10, 
+                        mainAxisSpacing: 12, 
                         childAspectRatio: 0.75, 
                       ),
                       itemCount: pokemons.length,

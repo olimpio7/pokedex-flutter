@@ -9,12 +9,10 @@ part 'trainer_dao.g.dart';
 class TrainerDao extends DatabaseAccessor<AppDatabase> with _$TrainerDaoMixin {
   TrainerDao(super.db);
 
-  /// Cria um novo treinador.
   Future<int> createTrainer(TrainersCompanion entry) {
     return into(trainers).insert(entry);
   }
 
-  /// Busca todos os treinadores cadastrados.
   Future<List<Trainer>> getTrainers() {
     return (select(trainers)
           ..orderBy([
@@ -23,17 +21,14 @@ class TrainerDao extends DatabaseAccessor<AppDatabase> with _$TrainerDaoMixin {
         .get();
   }
 
-  /// Busca um treinador pelo ID.
   Future<Trainer?> getTrainerById(int trainerId) {
     return (select(trainers)..where((t) => t.trainerId.equals(trainerId))).getSingleOrNull();
   }
 
-  /// Atualiza os dados de um treinador.
   Future<int> updateTrainer(int trainerId, TrainersCompanion entry) {
     return (update(trainers)..where((t) => t.trainerId.equals(trainerId))).write(entry);
   }
 
-  /// Exclui um treinador pelo ID.
   Future<int> deleteTrainer(int trainerId) {
     return (delete(trainers)..where((t) => t.trainerId.equals(trainerId))).go();
   }

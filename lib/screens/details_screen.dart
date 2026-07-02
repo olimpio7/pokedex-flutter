@@ -38,7 +38,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      ).showSnackBar(SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))));
     }
   }
 
@@ -49,7 +49,6 @@ class _DetailsScreenState extends State<DetailsScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // topo
             Padding(
               padding: const EdgeInsets.all(20),
               child: Row(
