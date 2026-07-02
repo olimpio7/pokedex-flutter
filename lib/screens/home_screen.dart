@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pokedex/models/pokemon.dart';
 import 'package:pokedex/screens/details_screen.dart';
 import 'package:pokedex/screens/favorites_screen.dart';
+import 'package:pokedex/screens/teams_screen.dart';
+import 'package:pokedex/screens/trainer_screen.dart';
 import 'package:pokedex/widgets/pokemon_card.dart';
 
 import 'package:pokedex/repositories/poke_api_repository.dart';
@@ -45,6 +47,30 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Colors.white,
                       ),
                     ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.shield, color: Colors.white),
+                    tooltip: 'Meus Times',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const TeamsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.person, color: Colors.white),
+                    tooltip: 'Treinador',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const TrainerScreen(),
+                        ),
+                      );
+                    },
                   ),
                   IconButton(
                     icon: const Icon(

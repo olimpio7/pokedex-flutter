@@ -82,7 +82,6 @@ class FavoriteCard extends StatelessWidget {
                     ),
                   ),
                   
-                  // Comentário (se existir)
                   if (pokemon.comment != null && pokemon.comment!.trim().isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Text(
@@ -100,7 +99,6 @@ class FavoriteCard extends StatelessWidget {
               ),
             ),
             
-            // Ações (Editar, Deletar)
             Column(
               children: [
                 IconButton(

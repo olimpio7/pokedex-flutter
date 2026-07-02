@@ -103,7 +103,7 @@ class PokemonCard extends StatelessWidget {
                     child: InfoChip(
                       icon: Icons.height,
                       text: pokemon.height != null
-                          ? "${(pokemon.height! / 10).toStringAsFixed(1)} m"
+                          ? "${(pokemon.height! % 10 == 0) ? (pokemon.height! ~/ 10).toString() : (pokemon.height! / 10).toStringAsFixed(1)} m"
                           : "- m",
                     ),
                   ),
@@ -112,7 +112,7 @@ class PokemonCard extends StatelessWidget {
                     child: InfoChip(
                       icon: Icons.monitor_weight_outlined,
                       text: pokemon.weight != null
-                          ? "${(pokemon.weight! / 10).toStringAsFixed(1)} kg"
+                          ? "${(pokemon.weight! % 10 == 0) ? (pokemon.weight! ~/ 10).toString() : (pokemon.weight! / 10).toStringAsFixed(1)} kg"
                           : "- kg",
                     ),
                   ),

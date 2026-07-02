@@ -1,4 +1,8 @@
+import 'dart:io';
 import 'package:drift/drift.dart';
+import 'package:drift/native.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 import 'tables/favorite_table.dart';
 import 'tables/trainer_table.dart';
@@ -8,7 +12,6 @@ import 'daos/favorite_dao.dart';
 import 'daos/trainer_dao.dart';
 import 'daos/team_dao.dart';
 import 'daos/team_pokemon_dao.dart';
-import 'native_connection.dart';
 
 part 'app_database.g.dart';
 
@@ -46,5 +49,9 @@ class AppDatabase extends _$AppDatabase {
 }
 
 LazyDatabase _openConnection() {
-  return LazyDatabase(() async => await openDatabaseConnection());
+  return LazyDatabase(() async {
+    final dbFolder = await getApplicationDocumentsDirectory();
+    final file = File(p.join(dbFolder.path, 'pokedex.sqlite'));
+    return NativeDatabase.createInBackground(file);
+  });
 }

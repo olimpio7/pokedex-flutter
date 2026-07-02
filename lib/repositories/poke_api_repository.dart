@@ -32,4 +32,24 @@ class PokeApiRepository {
       throw Exception('Erro ao buscar pokémons: $e');
     }
   }
+  Future<Pokemon> fetchPokemonById(int id) async {
+    try {
+      final response = await _dio.get('https://pokeapi.co/api/v2/pokemon/$id');
+      final data = response.data;
+      final types = data['types'] as List;
+      final typeName = types.isNotEmpty ? types[0]['type']['name'] : 'unknown';
+
+      return Pokemon(
+        id: data['id'],
+        name: data['name'],
+        image: data['sprites']['other']['official-artwork']['front_default'] ?? 
+               data['sprites']['front_default'] ?? '',
+        type: typeName,
+        height: data['height'],
+        weight: data['weight'], 
+      );
+    } catch (e) {
+      throw Exception('Erro ao buscar pokémon $id: $e');
+    }
+  }
 }

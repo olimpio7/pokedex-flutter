@@ -135,7 +135,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                               ),
                               Text(
                                 widget.pokemon.height != null
-                                    ? "${(widget.pokemon.height! / 10).toStringAsFixed(1)} m"
+                                    ? "${(widget.pokemon.height! % 10 == 0) ? (widget.pokemon.height! ~/ 10).toString() : (widget.pokemon.height! / 10).toStringAsFixed(1)} m"
                                     : "-",
                                 style: const TextStyle(fontSize: 16),
                               ),
@@ -149,7 +149,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                               ),
                               Text(
                                 widget.pokemon.weight != null
-                                    ? "${(widget.pokemon.weight! / 10).toStringAsFixed(1)} kg"
+                                    ? "${(widget.pokemon.weight! % 10 == 0) ? (widget.pokemon.weight! ~/ 10).toString() : (widget.pokemon.weight! / 10).toStringAsFixed(1)} kg"
                                     : "-",
                                 style: const TextStyle(fontSize: 16),
                               ),
