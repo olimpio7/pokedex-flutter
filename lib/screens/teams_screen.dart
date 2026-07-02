@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
-import '../main.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../blocs/teams/teams_bloc.dart';
+import '../blocs/teams/teams_event.dart';
+import '../blocs/teams/teams_state.dart';
 import '../database/app_database.dart';
 import 'team_details_screen.dart';
+import '../blocs/team_details/team_details_bloc.dart';
+import '../blocs/team_details/team_details_event.dart';
+import '../repositories/poke_api_repository.dart';
+import '../repositories/team_pokemon_repository.dart';
 
 class TeamsScreen extends StatefulWidget {
   const TeamsScreen({super.key});
@@ -11,30 +18,13 @@ class TeamsScreen extends StatefulWidget {
 }
 
 class _TeamsScreenState extends State<TeamsScreen> {
-  List<Team> _teams = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadTeams();
-  }
-
-  Future<void> _loadTeams() async {
-    final teams = await teamRepository.getTeams();
-    setState(() {
-      _teams = teams;
-      _isLoading = false;
-    });
-  }
-
   void _showTeamDialog([Team? team]) {
     final nameController = TextEditingController(text: team?.name ?? '');
     final descController = TextEditingController(text: team?.description ?? '');
 
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: Text(team == null ? 'Criar Time' : 'Editar Time'),
           content: Column(
@@ -52,27 +42,19 @@ class _TeamsScreenState extends State<TeamsScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text('Cancelar'),
             ),
             ElevatedButton(
-              onPressed: () async {
-                final nav = Navigator.of(context);
-                if (team == null) {
-                  await teamRepository.createTeam(
+              onPressed: () {
+                context.read<TeamsBloc>().add(
+                  SaveTeamEvent(
+                    team: team,
                     name: nameController.text,
                     description: descController.text,
-                  );
-                } else {
-                  await teamRepository.updateTeam(
-                    teamId: team.teamId,
-                    name: nameController.text,
-                    description: descController.text,
-                    createdAt: team.createdAt,
-                  );
-                }
-                nav.pop();
-                _loadTeams();
+                  )
+                );
+                Navigator.pop(dialogContext);
               },
               child: const Text('Salvar'),
             ),
@@ -82,9 +64,8 @@ class _TeamsScreenState extends State<TeamsScreen> {
     );
   }
 
-  Future<void> _deleteTeam(int id) async {
-    await teamRepository.deleteTeam(id);
-    _loadTeams();
+  void _deleteTeam(int id) {
+    context.read<TeamsBloc>().add(DeleteTeamEvent(id));
   }
 
   @override
@@ -102,56 +83,76 @@ class _TeamsScreenState extends State<TeamsScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
         ),
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _teams.isEmpty
-                ? const Center(
-                    child: Text(
-                      'Você não tem times ainda. Crie um!',
-                      style: TextStyle(color: Colors.grey, fontSize: 16),
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _teams.length,
-                    itemBuilder: (context, index) {
-                      final team = _teams[index];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        elevation: 3,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          leading: const CircleAvatar(
-                            backgroundColor: Color(0xFFE53935),
-                            child: Icon(Icons.catching_pokemon, color: Colors.white),
-                          ),
-                          title: Text(team.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                          subtitle: Text(team.description),
-                          onTap: () async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => TeamDetailsScreen(team: team)),
-                            );
-                            _loadTeams();
-                          },
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.blue),
-                                onPressed: () => _showTeamDialog(team),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () => _deleteTeam(team.teamId),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
+        child: BlocBuilder<TeamsBloc, TeamsState>(
+          builder: (context, state) {
+            if (state is TeamsLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is TeamsError) {
+              return Center(child: Text(state.message));
+            } else if (state is TeamsLoaded) {
+              final teams = state.teams;
+              if (teams.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'Você não tem times ainda. Crie um!',
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
                   ),
+                );
+              }
+              return ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: teams.length,
+                itemBuilder: (context, index) {
+                  final team = teams[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      leading: const CircleAvatar(
+                        backgroundColor: Color(0xFFE53935),
+                        child: Icon(Icons.catching_pokemon, color: Colors.white),
+                      ),
+                      title: Text(team.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                      subtitle: Text(team.description),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => BlocProvider(
+                            create: (context) => TeamDetailsBloc(
+                              teamPokemonRepository: context.read<TeamPokemonRepository>(),
+                              apiRepository: context.read<PokeApiRepository>(),
+                            )..add(LoadTeamDetailsEvent(team.teamId)),
+                            child: TeamDetailsScreen(team: team),
+                          )),
+                        ).then((_) {
+                          if (context.mounted) {
+                            context.read<TeamsBloc>().add(LoadTeamsEvent());
+                          }
+                        });
+                      },
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed: () => _showTeamDialog(team),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _deleteTeam(team.teamId),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            }
+            return const SizedBox();
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showTeamDialog(),

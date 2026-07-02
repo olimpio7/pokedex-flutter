@@ -19,6 +19,8 @@ dependencies:
   dio: ^5.10.0
   universal_io: ^2.0.0
   image_picker: ^1.2.3
+  flutter_bloc: ^9.1.1
+  equatable: ^2.0.8
 
 dev_dependencies:
   flutter_test:

@@ -1,58 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pokedex/widgets/favorite_card.dart';
 import 'package:pokedex/models/pokemon.dart';
+import '../blocs/favorites/favorites_bloc.dart';
+import '../blocs/favorites/favorites_event.dart';
+import '../blocs/favorites/favorites_state.dart';
 
-import '../main.dart';
-
-class FavoritesScreen extends StatefulWidget {
+class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
 
-  @override
-  State<FavoritesScreen> createState() => _FavoritesScreenState();
-}
-
-class _FavoritesScreenState extends State<FavoritesScreen> {
-  List<Pokemon> favorites = [];
-  bool isLoading = true;
-  String? errorMessage;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadFavorites();
+  void _deleteFavorite(BuildContext context, int id) {
+    context.read<FavoritesBloc>().add(DeleteFavoriteEvent(id));
   }
 
-  Future<void> _loadFavorites() async {
-    try {
-      final list = await favoriteRepository.getAllFavorites();
-      if (!mounted) return;
-      setState(() {
-        favorites = list;
-        isLoading = false;
-        errorMessage = null;
-      });
-    } catch (error) {
-      if (!mounted) return;
-      setState(() {
-        favorites = [];
-        isLoading = false;
-        errorMessage = 'Não foi possível carregar os favoritos.';
-      });
-    }
-  }
-
-  Future<void> _deleteFavorite(int id) async {
-    await favoriteRepository.removeFavorite(id);
-    _loadFavorites();
-  }
-
-  Future<void> _editFavorite(Pokemon pokemon) async {
+  void _editFavorite(BuildContext context, Pokemon pokemon) {
     final ratingController = TextEditingController(text: pokemon.rating?.toString() ?? '');
     final commentController = TextEditingController(text: pokemon.comment ?? '');
 
-    await showDialog(
+    showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: Text('Editar ${pokemon.name}'),
           content: Column(
@@ -77,17 +44,22 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text('Cancelar'),
             ),
             ElevatedButton(
-              onPressed: () async {
+              onPressed: () {
                 final rating = int.tryParse(ratingController.text);
                 final comment = commentController.text;
-                final nav = Navigator.of(context);
-                await favoriteRepository.updateFavoriteCommentAndRating(pokemon.id, comment, rating);
-                nav.pop();
-                _loadFavorites();
+                
+                context.read<FavoritesBloc>().add(
+                  EditFavoriteEvent(
+                    pokemonId: pokemon.id,
+                    comment: comment,
+                    rating: rating,
+                  ),
+                );
+                Navigator.pop(dialogContext);
               },
               child: const Text('Salvar'),
             ),
@@ -112,34 +84,44 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
         ),
-        child: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : errorMessage != null
-                ? Center(
-                    child: Text(
-                      errorMessage!,
-                      style: const TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  )
-                : favorites.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'Nenhum Pokémon favoritado ainda.',
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
-                        ),
-                      )
-                    : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: favorites.length,
-                    itemBuilder: (context, index) {
-                      final pokemon = favorites[index];
-                      return FavoriteCard(
-                        pokemon: pokemon,
-                        onEdit: () => _editFavorite(pokemon),
-                        onDelete: () => _deleteFavorite(pokemon.id),
-                      );
-                    },
+        child: BlocBuilder<FavoritesBloc, FavoritesState>(
+          builder: (context, state) {
+            if (state is FavoritesLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is FavoritesError) {
+              return Center(
+                child: Text(
+                  state.message,
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              );
+            } else if (state is FavoritesLoaded) {
+              final favorites = state.favorites;
+              if (favorites.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'Nenhum Pokémon favoritado ainda.',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
+                );
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: favorites.length,
+                itemBuilder: (context, index) {
+                  final pokemon = favorites[index];
+                  return FavoriteCard(
+                    pokemon: pokemon,
+                    onEdit: () => _editFavorite(context, pokemon),
+                    onDelete: () => _deleteFavorite(context, pokemon.id),
+                  );
+                },
+              );
+            }
+            return const SizedBox();
+          },
+        ),
       ),
     );
   }

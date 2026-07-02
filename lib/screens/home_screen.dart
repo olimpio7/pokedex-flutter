@@ -1,30 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:pokedex/models/pokemon.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pokedex/screens/details_screen.dart';
 import 'package:pokedex/screens/favorites_screen.dart';
 import 'package:pokedex/screens/teams_screen.dart';
 import 'package:pokedex/screens/trainer_screen.dart';
 import 'package:pokedex/widgets/pokemon_card.dart';
+import '../blocs/home/home_bloc.dart';
+import '../blocs/home/home_event.dart';
+import '../blocs/home/home_state.dart';
 
-import 'package:pokedex/repositories/poke_api_repository.dart';
-
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  final PokeApiRepository _api = PokeApiRepository();
-  late Future<List<Pokemon>> _pokemonsFuture;
-  String _searchQuery = ''; 
-
-  @override
-  void initState() {
-    super.initState();
-    _pokemonsFuture = _api.fetchPokemons(limit: 50);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,9 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: TextField(
                 onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value.toLowerCase().trim();
-                  });
+                  context.read<HomeBloc>().add(SearchPokemonsEvent(value));
                 },
                 decoration: InputDecoration(
                   filled: true,
@@ -122,57 +106,48 @@ class _HomeScreenState extends State<HomeScreen> {
                     top: Radius.circular(30),
                   ),
                 ),
-                child: FutureBuilder<List<Pokemon>>(
-                  future: _pokemonsFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
+                child: BlocBuilder<HomeBloc, HomeState>(
+                  builder: (context, state) {
+                    if (state is HomeLoading) {
                       return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text('Erro: ${snapshot.error}'));
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(child: Text('Nenhum Pokémon encontrado.'));
-                    }
+                    } else if (state is HomeError) {
+                      return Center(child: Text('Erro: ${state.message}'));
+                    } else if (state is HomeLoaded) {
+                      final pokemons = state.filteredPokemons;
 
-                    final allPokemons = snapshot.data!;
-                    
-                    final pokemons = _searchQuery.isEmpty
-                        ? allPokemons
-                        : allPokemons.where((p) {
-                            return p.name.toLowerCase().contains(_searchQuery) ||
-                                   p.id.toString() == _searchQuery;
-                          }).toList();
+                      if (pokemons.isEmpty) {
+                        return const Center(
+                          child: Text(
+                            'Nenhum Pokémon encontrado para essa busca.',
+                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                          ),
+                        );
+                      }
 
-                    if (pokemons.isEmpty) {
-                      return const Center(
-                        child: Text(
-                          'Nenhum Pokémon encontrado para essa busca.',
-                          style: TextStyle(color: Colors.grey, fontSize: 16),
+                      return GridView.builder(
+                        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 200,
+                          crossAxisSpacing: 10, 
+                          mainAxisSpacing: 12, 
+                          childAspectRatio: 0.75, 
                         ),
+                        itemCount: pokemons.length,
+                        itemBuilder: (context, index) {
+                          return PokemonCard(
+                            pokemon: pokemons[index],
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => DetailsScreen(pokemon: pokemons[index]),
+                                ),
+                              );
+                            },
+                          );
+                        },
                       );
                     }
-
-                    return GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 200,
-                        crossAxisSpacing: 10, 
-                        mainAxisSpacing: 12, 
-                        childAspectRatio: 0.75, 
-                      ),
-                      itemCount: pokemons.length,
-                      itemBuilder: (context, index) {
-                        return PokemonCard(
-                          pokemon: pokemons[index],
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => DetailsScreen(pokemon: pokemons[index]),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
+                    return const SizedBox();
                   },
                 ),
               ),
