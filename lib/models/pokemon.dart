@@ -3,12 +3,10 @@ class Pokemon {
   final String name;
   final String image;
   
-  // Campos que vêm apenas da API (não são salvos no banco local para economizar espaço)
   final int? height;
   final int? weight;
   final String? type;
   
-  // Campos que são salvos no banco local
   final String? comment;
   final int? rating;
 

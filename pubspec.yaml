@@ -17,6 +17,7 @@ dependencies:
   path: ^1.9.1
   sqlite3: ^3.3.4
   dio: ^5.10.0
+  universal_io: ^2.0.0
 
 dev_dependencies:
   flutter_test:

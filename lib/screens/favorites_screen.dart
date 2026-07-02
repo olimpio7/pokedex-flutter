@@ -14,6 +14,7 @@ class FavoritesScreen extends StatefulWidget {
 class _FavoritesScreenState extends State<FavoritesScreen> {
   List<Pokemon> favorites = [];
   bool isLoading = true;
+  String? errorMessage;
 
   @override
   void initState() {
@@ -22,11 +23,22 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 
   Future<void> _loadFavorites() async {
-    final list = await favoriteRepository.getAllFavorites();
-    setState(() {
-      favorites = list;
-      isLoading = false;
-    });
+    try {
+      final list = await favoriteRepository.getAllFavorites();
+      if (!mounted) return;
+      setState(() {
+        favorites = list;
+        isLoading = false;
+        errorMessage = null;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        favorites = [];
+        isLoading = false;
+        errorMessage = 'Não foi possível carregar os favoritos.';
+      });
+    }
   }
 
   Future<void> _deleteFavorite(int id) async {
@@ -102,14 +114,21 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         ),
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
-            : favorites.isEmpty
-                ? const Center(
+            : errorMessage != null
+                ? Center(
                     child: Text(
-                      'Nenhum Pokémon favoritado ainda.',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      errorMessage!,
+                      style: const TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                   )
-                : ListView.builder(
+                : favorites.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'Nenhum Pokémon favoritado ainda.',
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      )
+                    : ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: favorites.length,
                     itemBuilder: (context, index) {

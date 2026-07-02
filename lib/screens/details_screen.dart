@@ -14,7 +14,6 @@ class DetailsScreen extends StatefulWidget {
 
 class _DetailsScreenState extends State<DetailsScreen> {
   Future<void> saveFavorite() async {
-    // Usando o pokemon recebido pela tela, forçando comment e rating nulos no momento de favoritar
     final pokemonToSave = Pokemon(
       id: widget.pokemon.id,
       name: widget.pokemon.name,
@@ -73,8 +72,6 @@ class _DetailsScreenState extends State<DetailsScreen> {
                 ],
               ),
             ),
-
-            // conteúdo branco
             Expanded(
               child: Container(
                 width: double.infinity,

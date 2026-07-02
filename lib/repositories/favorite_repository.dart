@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import '../database/app_database.dart';
 import '../models/pokemon.dart';
 
@@ -24,16 +25,21 @@ class FavoriteRepository {
   }
 
   Future<List<Pokemon>> getAllFavorites() async {
+    try {
+      final favoriteList = await _db.favoriteDao.getFavorites();
 
-    final favoriteList = await _db.favoriteDao.getFavorites();
-  
-    return favoriteList.map((f) => Pokemon(
-      id: f.pokemonId,
-      name: f.name,
-      image: f.image,
-      comment: f.comment,
-      rating: f.rating,
-    )).toList();
+      return favoriteList.map((f) => Pokemon(
+        id: f.pokemonId,
+        name: f.name,
+        image: f.image,
+        comment: f.comment,
+        rating: f.rating,
+      )).toList();
+    } catch (error, stackTrace) {
+      debugPrint('Erro ao carregar favoritos: $error');
+      debugPrintStack(stackTrace: stackTrace);
+      return [];
+    }
   }
 
   Future<void> removeFavorite(int pokemonId) async {
