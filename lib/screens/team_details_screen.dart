@@ -72,7 +72,10 @@ class TeamDetailsScreen extends StatelessWidget {
                               children: [
                                 Expanded(child: Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Image.network(p.image),
+                                  child: Image.network(
+                                    p.image,
+                                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.catching_pokemon, color: Colors.grey),
+                                  ),
                                 )),
                                 Text(
                                   p.name.toUpperCase(), 
@@ -165,7 +168,10 @@ class TeamDetailsScreen extends StatelessWidget {
                           color: Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(12)
                         ),
-                        child: Image.network(p.image),
+                        child: Image.network(
+                          p.image,
+                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.catching_pokemon, color: Colors.grey),
+                        ),
                       ),
                       title: Text(p.name.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
                       subtitle: Text('ID: #${p.id}'),

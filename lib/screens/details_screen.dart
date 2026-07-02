@@ -86,6 +86,7 @@ class DetailsScreen extends StatelessWidget {
                           child: Image.network(
                             pokemon.image,
                             height: 180,
+                            errorBuilder: (context, error, stackTrace) => const Icon(Icons.catching_pokemon, color: Colors.grey, size: 100),
                           ),
                         ),
 

@@ -47,6 +47,9 @@ class FavoriteCard extends StatelessWidget {
                 child: Image.network(
                   pokemon.image,
                   fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.catching_pokemon, color: Colors.grey, size: 40);
+                  },
                 ),
               ),
             ),

@@ -82,6 +82,7 @@ class PokemonCard extends StatelessWidget {
                   child: Image.network(
                     pokemon.image,
                     fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.catching_pokemon, color: Colors.white54, size: 40),
                   ),
                 ),
               ),
