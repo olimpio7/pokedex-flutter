@@ -1,67 +1,125 @@
 import 'package:flutter/material.dart';
-import 'package:pokedex/screens/details_screen.dart';
+
+import '../models/pokemon.dart';
+import 'info_chip.dart';
+import 'type_color.dart';
 
 class PokemonCard extends StatelessWidget {
-  final String name;
-  final String type;
-  final String imageUrl;
+  final Pokemon pokemon;
+  final VoidCallback? onTap;
 
   const PokemonCard({
     super.key,
-    required this.name,
-    required this.type,
-    required this.imageUrl,
+    required this.pokemon,
+    this.onTap,
   });
-
-  Color getTypeColor() {
-    switch (type.toLowerCase()) {
-      case 'grass':
-        return Colors.green;
-      case 'fire':
-        return Colors.red;
-      case 'water':
-        return Colors.blue;
-      default:
-        return Colors.grey;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    final color = typeColor(pokemon.type);
+
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const DetailsScreen()),
-        );
-      },
+      onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: getTypeColor(),
           borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              color,
+              color.withValues(alpha: .75),
+            ],
+          ),
+          border: Border.all(
+            color: const Color(0xffFFD54F),
+            width: 3,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: .35),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            )
+          ],
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            children: [
+              /// Cabeçalho
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      pokemon.name.toUpperCase(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    "#${pokemon.id}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  )
+                ],
+              ),
+
+              const SizedBox(height: 8),
+
+              /// Imagem
+              Expanded(
+                child: Hero(
+                  tag: pokemon.id,
+                  child: Image.network(
+                    pokemon.image,
+                    fit: BoxFit.contain,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(type, style: const TextStyle(color: Colors.white)),
-              ],
-            ),
-            Image.network(imageUrl, height: 80),
-          ],
+              ),
+
+              const SizedBox(height: 8),
+
+              /// Tipo
+              InfoChip(
+                icon: Icons.catching_pokemon,
+                text: pokemon.type ?? "Unknown",
+              ),
+
+              const SizedBox(height: 6),
+
+              /// Altura e peso
+              Row(
+                children: [
+                  Expanded(
+                    child: InfoChip(
+                      icon: Icons.height,
+                      text: pokemon.height != null
+                          ? "${(pokemon.height! / 10).toStringAsFixed(1)} m"
+                          : "- m",
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: InfoChip(
+                      icon: Icons.monitor_weight_outlined,
+                      text: pokemon.weight != null
+                          ? "${(pokemon.weight! / 10).toStringAsFixed(1)} kg"
+                          : "- kg",
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
